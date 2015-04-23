@@ -95,7 +95,7 @@
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.fields=["name","age"];
-   $scope.Record=$resource('phones.php',{},{get:{isArray:true}});
+   $scope.Record=$resource('ajax.php',{},{get:{isArray:true}});
    $scope.records=$scope.Record.get();
    $scope.mousenter=function(){
 	   //console.log('mousenter');
