@@ -123,8 +123,8 @@
 	 if (e.id==0) {
 	  $scope.reset(record);
 	 }
+	 $scope.addinguser=false;
 	});
-	$scope.addinguser=false;
    }
    $scope.reset=function(record){
    if(record.id==0) {
