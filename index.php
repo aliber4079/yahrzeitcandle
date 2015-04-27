@@ -11,21 +11,9 @@
   tr:nth-child(even) input.editing {
    background-color: lightgreen;
   }
-  tr:nth-child(odd) input {
-   background: white;
-   border: none;
-   width: 100%;
-  }
-  tr:nth-child(even) input {
-   background-color: lightgray;
-   border: none;
-   width: 100%;
-  }
   td {
    margin: 0px;
    padding: 0px;
-   width:50px;
-   border: solid thin black;
   }
   td.editcol {
    width:200px;
@@ -47,23 +35,31 @@
             <h3 class="modal-title">Confirm Delete</h3>
         </div>
         <div class="modal-body">
-            remove {{record.name}} ?
+            remove {{record.honoree}} ?
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" ng-click="ok()">OK</button>
             <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
     </script>
-{{showdeletefor}}
+{{opened}}
 <table ng-mouseleave="showdeletefor=0">
+<tr>
+<th>Name</th><th>Date</th>
+</tr>
 <tr ng-repeat="record in records" ng-mouseenter="$parent.showdeletefor=record.id">
-<td ng-repeat="field in fields">
+<td>
  <input type="hidden" ng-model="record.id">
- <input ng-model="record[field]" ng-focus="focusme($event,record)" ng-blur="focusme($event,record)" ng-keyup="focusme($event,record)">
+ <input class="form-control"  ng-model="record.honoree" ng-blur="record.$save()">
 </td>
-<!-- td>
-<button type="button"><span class="glyphicon glyphicon-camera"></span></button>
-</td -->
+<td><!-----greg date ----->
+ <div class="input-group">
+  <input type="text" class="form-control" datepicker-popup=""  ng-model="record.greg_date" is-open="record.opened"  datepicker-mode="day" ng-blur="record.$save()" ng-required="true" close-text="Close" />
+  <span class="input-group-btn">
+   <button type="button" class="btn btn-default" ng-click="opencal($event,record)"><i class="glyphicon glyphicon-calendar"></i></button>
+  </span>
+  </div>
+</td><!-- /greg date --->
 <td class="editcol">
     <span ng-show="record.id==0">
      <button type="button" ng-click="submitnew(record)">save</button>
@@ -82,10 +78,10 @@
  </div>
 </div>
 
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-<script src="//code.angularjs.org/1.3.15/angular-resource.min.js"></script>
-<script src="ui-bootstrap-custom-0.12.1.min.js"></script>
-<script src="ui-bootstrap-custom-tpls-0.12.1.min.js"></script>
+<script src="angular.min.js"></script>
+<script src="angular-resource.min.js"></script>
+<script src="ui-bootstrap-0.12.1.min.js"></script>
+<script src="ui-bootstrap-tpls-0.12.1.min.js"></script>
 <script>
  (function (){
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
@@ -94,12 +90,23 @@
    /*****INIT VARIABLES*****/
    $scope.addinguser=false;
    $scope.showdeletefor=0;
-   $scope.fields=["name","age"];
+   $scope.fields=["honoree","greg_date"];
    $scope.Record=$resource('ajax.php',{},{get:{isArray:true}});
    $scope.records=$scope.Record.get();
    $scope.mousenter=function(){
 	   //console.log('mousenter');
    }
+   $scope.opencal=function($event,r) {
+	$event.stopPropagation();
+	$event.preventDefault();
+	$scope.records.map(function(r1){
+		if (r1.id==r.id) {
+			r1.opened=true;
+		} else {
+			r1.opened=false;
+		}
+	});
+   }   
    $scope.delete=function(r) {
 	 r.$remove({"id":r.id}, function() {
 	  $log.info("deleting " + r.id);
@@ -132,20 +139,9 @@
 	$scope.addinguser=false;
    }
   };
-   $scope.focusme=function(e,r) {
-	$log.info(e.type);
-    if (e.type==='focus') {
-	 e.target.className="editing";
-	} else if (e.type==='blur') {
-	 e.target.className="";
-	 r.id && r.$save();
-	} else if (!$scope.addinguser && e.type==='keyup' && e.keyCode==13) {
-	 e.target.blur();
-	}
-   }
    //dialog *********
    $scope.confirmdelete=function(record) {
-	  $log.info('r u sure u want to delete ' + record.name);
+	  $log.info('r u sure u want to delete ' + record.honoree);
 	  var modalInstance = $modal.open({
        templateUrl: 'myModalContent.html',
        controller: 'ModalInstanceCtrl',
@@ -155,16 +151,14 @@
        }
     });
 	modalInstance.result.then(function (record) {
-      $log.info('ok, deleting ' + record.name);
+      $log.info('ok, deleting ' + record.honoree);
 	  $scope.delete(record);
     }, function () {
       $log.info('Modal dismissed at: ' + new Date());
     });
 
    };
-  });
-  
-  angular.module('yahrzeitcandle').controller('ModalInstanceCtrl', function ($scope, $modalInstance, $log, record) {
+  }).controller('ModalInstanceCtrl', function ($scope, $modalInstance, $log, record) {
    $scope.record=record;
    $scope.ok = function () {
     $modalInstance.close(record);
@@ -174,8 +168,6 @@
     $modalInstance.dismiss();
    };
   });
-  
-  
  })();
 </script>
 </body>
