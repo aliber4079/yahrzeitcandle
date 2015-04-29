@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="hebcal.noloc.js"></script>
+
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <style>
   table {
@@ -20,7 +23,7 @@
    border: none;
   }
   input {
-	width:100%;
+	//width:100%;
   }
   div[ng-app] {
    margin: 5em;
@@ -42,7 +45,6 @@
             <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
     </script>
-{{opened}}
 <table ng-mouseleave="showdeletefor=0">
 <tr>
 <th>Name</th><th>Date</th>
@@ -52,14 +54,29 @@
  <input type="hidden" ng-model="record.id">
  <input class="form-control"  ng-model="record.honoree" ng-blur="record.$save()">
 </td>
-<td><!-----greg date ----->
+<td><!-----greg date --------------------------------------->
  <div class="input-group">
-  <input type="text" class="form-control" datepicker-popup=""  ng-model="record.greg_date" is-open="record.opened"  datepicker-mode="day" ng-blur="record.$save()" ng-required="true" close-text="Close" />
-  <span class="input-group-btn">
-   <button type="button" class="btn btn-default" ng-click="opencal($event,record)"><i class="glyphicon glyphicon-calendar"></i></button>
-  </span>
-  </div>
-</td><!-- /greg date --->
+  <select ng-model="record.blip" 
+  ng-options="opt as opt.label for opt in gregmonths"
+  ng-change="gregChange(record)" >
+  </select> 
+  <input type="number" min="1" max="31" ng-model="record.greg_day" 
+  ng-change="gregChange(record)"/>
+  <input type="number" ng-model="record.greg_year" 
+  ng-change="gregChange(record)"/>
+ </div>
+
+</td><!-- /greg date ------------------------------------->
+<td> <!--- heb date --------------------------------------->
+ <select  ng-options="opt as opt.label for opt in hebmonths" 
+ ng-change="hebChange(record)" 
+ ng-model="record.blah">
+ </select>
+ <input type="number" min="1" max="31" ng-model="record.heb_day"  
+ ng-change="hebChange(record)" />
+ <input type="number"  ng-model="record.heb_year"  
+ ng-change="hebChange(record)" />
+</td><!-- /heb date-------------------------------------->
 <td class="editcol">
     <span ng-show="record.id==0">
      <button type="button" ng-click="submitnew(record)">save</button>
@@ -87,12 +104,105 @@
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
   .controller('InplaceEditController',function($scope,$resource,$log,$modal) {
 	  
+  $scope.gregmonths=[
+   {label:'Jan',value:1},
+   {label:'Feb',value:2},
+   {label:'Mar',value:3},
+   {label:'Apr',value:4},
+   {label:'May',value:5},
+   {label:'Jun',value:6},
+   {label:'Jul',value:7},
+   {label:'Aug',value:8},
+   {label:'Sep',value:9},
+   {label:'Oct',value:10},
+   {label:'Nov',value:11},
+   {label:'Dec',value:12}];
+  $scope.hebmonths=[
+   {label:"Nissan", value: 1},
+   {label:"Iyar",  value: 2},
+   {label:"Sivan", value: 3},
+   {label:"Tamuz", value: 4},
+   {label:"Av",    value: 5},
+   {label:	"Elul",     value:6 }, 
+   {label:	"Tishrei",  value:7 },
+   {label:	"Cheshvan", value:8 },
+   {label:	"Kislev",   value:9 },
+   {label:	"Tevet",    value:10},
+   {label:	"Shvat",    value:11},
+   {label:	"Adar",     value:12},
+   {label:	"Adar II", value:13}];
+  $scope.days=[];
+  for (i=1;i<32;i++){
+   $scope.days.push(i);
+  }
+   $scope.gregChange=function(record){
+    record.greg_month=record.blip.value;
+	var d=$scope.calcHeb(record.greg_day,record.greg_month,record.greg_year);
+	record.heb_day=d[0];
+	record.heb_month=d[1];
+	record.heb_year=d[2];
+	$scope.hebmonths.map(function(x){
+		if (x.value==record.heb_month) {
+			record.blah=x;
+		}
+	});
+   }
+   $scope.hebChange=function(record){
+	record.heb_month=record.blah.value;
+	var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
+	record.greg_day=d[0];
+	record.greg_month=d[1];
+	record.greg_year=d[2];
+	//record.blip=$scope.gregmonths[record.greg_month];	
+    $scope.gregmonths.map(function(x){
+			   if (x.value==record.greg_month){
+		        record.blip=x;
+			   }
+		   });
+	   }
+   $scope.calcGreg=function(hebday,hebmonth,hebyear){
+    if (!hebday || !hebmonth ||!hebyear) {
+	 return;
+	}
+    day=new Hebcal.HDate(hebday,
+	hebmonth, hebyear);
+	gregday=day.greg().getDate();
+    gregmonth=day.greg().getMonth()+1; //Date index is 0 based
+	gregyear=day.greg().getYear()+1900;
+	return [gregday,gregmonth,gregyear];
+   }
+   $scope.calcHeb=function(gregday,gregmonth,gregyear){
+	$log.info("d,m,y " + gregday + " " + gregmonth + " " + gregyear);
+	day=new Hebcal.HDate(new Date(gregyear,gregmonth-1,gregday)); //0 indexed
+	return [day.day,day.month,day.year];
+   }  
+	  
    /*****INIT VARIABLES*****/
+   
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.fields=["honoree","greg_date"];
    $scope.Record=$resource('ajax.php',{},{get:{isArray:true}});
-   $scope.records=$scope.Record.get();
+   $scope.records=$scope.Record.get(function(){
+	   for (i=0;i<$scope.records.length;i++){
+		   record=$scope.records[i];
+		   var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
+		   record.greg_day=d[0];
+		   record.greg_month=d[1];
+		   record.greg_year=d[2];
+		   $log.info('greg_month ' + d[1]);
+		   $scope.gregmonths.map(function(x){
+			   if (x.value==record.greg_month){
+		        record.blip=x;
+			   }
+		   });
+			$scope.hebmonths.map(function(x){
+				if (x.value==record.heb_month) {
+					record.blah=x;
+				}
+			});
+	   }
+   });
    $scope.mousenter=function(){
 	   //console.log('mousenter');
    }
