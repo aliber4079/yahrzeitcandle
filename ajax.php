@@ -25,8 +25,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
   $mysql->query($sql);
  }
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
- exit(json_encode(array($result->fetch_array(MYSQLI_ASSOC)),JSON_NUMERIC_CHECK));
- //exit(json_encode($record));
+ exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
 }
 $result=$mysql->query("select * from yahrzeit");
 $results=array();
