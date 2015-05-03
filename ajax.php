@@ -1,7 +1,33 @@
 <?php
-error_log($_SERVER['REQUEST_METHOD']);
+session_start();
+define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4-4.0-dev/');
+require FACEBOOK_SDK_V4_DIR . 'autoload.php';
+ini_set("error_reporting",E_ALL);
+use Facebook\FacebookSession;
+use Facebook\FacebookRequest;
+
+FacebookSession::setDefaultApplication('130902026920290', '8615d2d91ed9a24b7970062b2bc4814e');
+if (isset($_SESSION['access_token'])){
+ $token=$_SESSION['access_token'];
+try {
+ $session = new FacebookSession($token);
+ $request = new FacebookRequest($session, 'GET', '/me');
+ $response = $request->execute();
+ $graphObject = $response->getGraphObject(); 
+ //error_log($me->getName());
+ error_log(print_r($graphObject,1));
+} catch(FacebookRequestException $ex) {
+    // When Facebook returns an error
+	error_log($ex);
+} catch(\Exception $ex) {
+    // When validation fails or other local issues
+	error_log($ex);
+}
+//exit();
+}
+//error_log($_SERVER['REQUEST_METHOD']);
 $record=json_decode(file_get_contents("php://input"));
-error_log(print_r($record,1));
+//error_log(print_r($record,1));
 $mysql=new mysqli("localhost","root","","crud");
 if ($_SERVER['REQUEST_METHOD']=="DELETE") {
 	$id= $_REQUEST['id'];

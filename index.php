@@ -1,3 +1,29 @@
+<?php
+session_start();
+define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4-4.0-dev/');
+require FACEBOOK_SDK_V4_DIR . 'autoload.php';
+ini_set("error_reporting",E_ALL);
+use Facebook\FacebookSession;
+use Facebook\FacebookCanvasLoginHelper;
+$appid="130902026920290";
+$secret="8615d2d91ed9a24b7970062b2bc4814e";
+FacebookSession::setDefaultApplication($appid, $secret);
+if ($token=isset($_SESSION['access_token'])) {
+ $session = new FacebookSession($_SESSION['access_token']);
+}
+try {
+ $session->Validate( $appid,$secret);
+ error_log("using existing session");  
+} catch (\Exception $ex) {
+ error_log("creating new session");
+ $helper = new FacebookCanvasLoginHelper();
+ $session=$helper->getSession();
+ $token=$session->getToken();
+ $_SESSION['access_token'] = $token;
+}
+
+
+?>
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -24,7 +50,7 @@
             <button class="btn btn-primary" ng-click="ok()">OK</button>
             <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
-    </script>
+  </script>
 	
 <table ng-mouseleave="showdeletefor=0" class="form-inline">
 <tr>
@@ -33,7 +59,7 @@
 <tr  ng-repeat="record in records" ng-mouseenter="$parent.showdeletefor=record.id">
 <td>
  <input type="hidden" ng-model="record.id">
- <input class="form-control"  ng-model="record.honoree" >
+ <input class="form-control"  ng-model="record.honoree" ng-blur="(record.id>0) && gregChange(record)">
 </td>
 <td><!-----greg date --------------------------------------->
   <select ng-model="record.greg_month" 
