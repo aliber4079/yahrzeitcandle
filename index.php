@@ -1,6 +1,7 @@
 <?php
+
 session_start();
-define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4-4.0-dev/');
+/*define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4-4.0-dev/');
 require FACEBOOK_SDK_V4_DIR . 'autoload.php';
 ini_set("error_reporting",E_ALL);
 use Facebook\FacebookSession;
@@ -9,18 +10,17 @@ $appid="130902026920290";
 $secret="8615d2d91ed9a24b7970062b2bc4814e";
 FacebookSession::setDefaultApplication($appid, $secret);
 if ($token=isset($_SESSION['access_token'])) {
- $session = new FacebookSession($_SESSION['access_token']);
-}
-try {
- $session->Validate( $appid,$secret);
- error_log("using existing session");  
-} catch (\Exception $ex) {
- error_log("creating new session");
- $helper = new FacebookCanvasLoginHelper();
- $session=$helper->getSession();
- $token=$session->getToken();
- $_SESSION['access_token'] = $token;
-}
+ try {
+  $session->Validate( $appid,$secret);
+  error_log("using existing session");  
+ } catch (\Exception $ex) {
+  error_log("creating new session");
+  $helper = new FacebookCanvasLoginHelper();
+  $session=$helper->getSession();
+  $token=$session->getToken();
+  $_SESSION['access_token'] = $token;
+ }
+}*/
 
 
 ?>
@@ -34,6 +34,16 @@ try {
   div[ng-app] {
    margin: 5em;
   }
+  .year {
+	  max-width:90px;
+  }
+  .day {
+	  max-width:80px;
+  }
+  .editcol {
+	  width: 100px;
+  }
+  
 </style>
 </head>
 <body>
@@ -68,9 +78,9 @@ try {
   class="form-control">
   </select> 
   <input type="number" min="1" max="31" ng-model="record.greg_day" 
-  ng-change="gregChange(record)" class="form-control" />
+  ng-change="gregChange(record)" class="form-control day" />
   <input type="number" ng-model="record.greg_year" 
-  ng-change="gregChange(record)" class="form-control" />
+  ng-change="gregChange(record)" class="form-control year" />
   <span   
   ng-model="record.pickerdate" type="text" datepicker-popup is-open="showcal[record.id]" 
   close-on-date-selection="false"
@@ -90,10 +100,10 @@ try {
  class="form-control">
  </select>
  <input type="number" min="1" max="31" ng-model="record.heb_day"  
- ng-change="hebChange(record)" class="form-control" />
+ ng-change="hebChange(record)" class="form-control day" />
  <input type="number"  ng-model="record.heb_year"  
  ng-change="hebChange(record)" 
- class="form-control" />
+ class="form-control year" />
  
 </td><!-- /heb date-------------------------------------->
 <td class="editcol">
