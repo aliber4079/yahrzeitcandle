@@ -1,27 +1,45 @@
 <?php
 
-session_start();
-/*define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4-4.0-dev/');
+define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4/');
 require FACEBOOK_SDK_V4_DIR . 'autoload.php';
-ini_set("error_reporting",E_ALL);
+session_start();
+
 use Facebook\FacebookSession;
 use Facebook\FacebookCanvasLoginHelper;
+use Facebook\FacebookRedirectLoginHelper;
 $appid="130902026920290";
 $secret="8615d2d91ed9a24b7970062b2bc4814e";
 FacebookSession::setDefaultApplication($appid, $secret);
-if ($token=isset($_SESSION['access_token'])) {
+$session=NULL;
+$helper = new FacebookCanvasLoginHelper();
+
+if (isset($_SESSION['access_token'])) {
+ $token=$_SESSION['access_token'];
  try {
+  $session = new FacebookSession($token);
+  error_log("Validate");
   $session->Validate( $appid,$secret);
   error_log("using existing session");  
  } catch (\Exception $ex) {
-  error_log("creating new session");
-  $helper = new FacebookCanvasLoginHelper();
-  $session=$helper->getSession();
+  error_log(print_r($ex,1) . " creating new session");
+  createnewsess();
+ }
+} else {
+  createnewsess();
+}
+function createnewsess() {
+ $helper = new FacebookCanvasLoginHelper();
+ $session=$helper->getSession();
+ if ($session) {
   $token=$session->getToken();
   $_SESSION['access_token'] = $token;
+ } else {
+  $helper=new FacebookRedirectLoginHelper("https://apps.facebook.com/ycdevapp/");
+  $loginUrl=$helper->getLoginUrl();
+  unset ($_SESSION);
+  exit("<script type='text/javascript'>top.location.href = '".$loginUrl."';</script>");
  }
-}*/
-
+}
 
 ?>
 <!DOCTYPE html>
@@ -32,13 +50,14 @@ if ($token=isset($_SESSION['access_token'])) {
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <style>
   div[ng-app] {
-   margin: 5em;
+   margin-left: 5em;
+   margin-top: 5em;
   }
   .year {
 	  max-width:90px;
   }
   .day {
-	  max-width:80px;
+	  max-width:70px;
   }
   .editcol {
 	  width: 100px;
@@ -61,8 +80,8 @@ if ($token=isset($_SESSION['access_token'])) {
             <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
   </script>
-	
-<table ng-mouseleave="showdeletefor=0" class="form-inline">
+ <span ng-bind="records[0].error"></span>
+<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="form-inline">
 <tr>
 <th>Name</th><th>Date</th>
 </tr>
@@ -72,6 +91,9 @@ if ($token=isset($_SESSION['access_token'])) {
  <input class="form-control"  ng-model="record.honoree" ng-blur="(record.id>0) && gregChange(record)">
 </td>
 <td><!-----greg date --------------------------------------->
+  <button type="button" class="btn btn-default" ng-click="opencal($event,record)">  
+  <i class="glyphicon glyphicon-calendar"></i>
+  </button>
   <select ng-model="record.greg_month" 
   ng-options="month.value as month.label for month in gregmonths"
   ng-change="gregChange(record)" 
@@ -89,9 +111,6 @@ if ($token=isset($_SESSION['access_token'])) {
   record.greg_day=record.pickerdate.getDate();
   record.greg_year=record.pickerdate.getFullYear();
   gregChange(record)"></span>
-  <button type="button" class="btn btn-default" ng-click="opencal($event,record)">  
-  <i class="glyphicon glyphicon-calendar"></i>
-  </button>
 </td><!-- /greg date ------------------------------------->
 <td> <!--- heb date --------------------------------------->
  <select  ng-model="record.heb_month"
@@ -117,7 +136,7 @@ if ($token=isset($_SESSION['access_token'])) {
 </td>
 </tr>
  </table>
- <div  ng-hide="addinguser">
+ <div  ng-hide="addinguser||records[0].error">
  <button type="button" ng-click="addnew()">
    <span class="glyphicon glyphicon-plus"></span>Add user
   </button>
@@ -229,8 +248,8 @@ if ($token=isset($_SESSION['access_token'])) {
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.showcal=[];
-   $scope.Record=$resource('ajax.php',{},{get:{isArray:true}});
-   $scope.records=$scope.Record.get(function(){
+   $scope.Record=$resource('ajax.php');
+   $scope.records=$scope.Record.query(function(){
     for (i=0;i<$scope.records.length;i++){
  	   record=$scope.records[i];
 	   $scope.showcal[record.id]=false;
@@ -241,7 +260,7 @@ if ($token=isset($_SESSION['access_token'])) {
  	   $log.info('greg_month ' + d[1]);
 	   record.pickerdate=new Date(record.greg_year, record.greg_month-1, record.greg_day);
 	}
-   });
+   },function(){$log.info("oops");});
    $scope.mousenter=function(){
 	   //console.log('mousenter');
    } 
