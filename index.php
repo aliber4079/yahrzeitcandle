@@ -1,8 +1,3 @@
-<?php
-
-
-
-?>
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -42,6 +37,8 @@
         </div>
   </script>
  <span ng-bind="records[0].error"></span>
+ 
+ <span ng-bind="user.id"></span>
 <table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="form-inline">
 <tr>
 <th>Name</th><th>Date</th>
@@ -111,7 +108,7 @@
 <script>
  
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
-  .controller('yahrzeitcandleController',function($scope,$resource,$log,$modal) {
+  .controller('yahrzeitcandleController',function($scope,$resource,$log,$modal,$window) {
   $scope.gregmonths=[
   {"label":'Jan',"value":1},
   {"label":'Feb',"value":2},
@@ -209,8 +206,10 @@
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.showcal=[];
-   $scope.Record=$resource('ajax.php');
-   $scope.records=$scope.Record.query({token:$scope.accessToken},function(){
+   $scope.user=$resource('ajax.php/user',{accessToken:window.accessToken}).get();
+   //$scope.user.get();
+   $scope.Record=$resource('ajax.php/yahrzeits',{accessToken:$window.accessToken});
+   $scope.records=$scope.Record.query(function(){
     for (i=0;i<$scope.records.length;i++){
  	   record=$scope.records[i];
 	   $scope.showcal[record.id]=false;

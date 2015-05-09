@@ -1,4 +1,6 @@
 <?php
+error_log(print_r($_GET,1));
+
 //ini_set("error_reporting",E_ALL);
 session_start();
 define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4/');
@@ -35,8 +37,17 @@ try {
 	exit(json_encode(array(array("error"=>"something went wrong"))));
  }
 }
-$record=json_decode(file_get_contents("php://input"));
 $mysql=new mysqli("localhost","root","","crud");
+error_log("user id: $user_id");
+
+if ($_SERVER['PATH_INFO']==="/user"){
+	error_log("user");
+	$result=$mysql->query("select * from user where id=$user_id");
+    exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
+}
+
+
+$record=json_decode(file_get_contents("php://input"));
 if ($_SERVER['REQUEST_METHOD']=="DELETE") {
 	$id= $_REQUEST['id'];
 	error_log("delete $id");
