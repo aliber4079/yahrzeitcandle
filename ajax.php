@@ -7,11 +7,10 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;
 use Facebook\GraphSessionInfo;
-//error_log(print_r($_SESSION,1));
 FacebookSession::setDefaultApplication('130902026920290', '8615d2d91ed9a24b7970062b2bc4814e');
 $session=$user_id=NULL;
-if (isset($_SESSION['access_token'])){
- $token=$_SESSION['access_token'];
+if (isset($_GET['accessToken'])){
+ $token=$_GET['accessToken'];
  //error_log($token);
 try {
  $session = new FacebookSession($token);

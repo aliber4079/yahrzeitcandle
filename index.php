@@ -1,45 +1,6 @@
 <?php
 
-define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4/');
-require FACEBOOK_SDK_V4_DIR . 'autoload.php';
-session_start();
 
-use Facebook\FacebookSession;
-use Facebook\FacebookCanvasLoginHelper;
-use Facebook\FacebookRedirectLoginHelper;
-$appid="130902026920290";
-$secret="8615d2d91ed9a24b7970062b2bc4814e";
-FacebookSession::setDefaultApplication($appid, $secret);
-$session=NULL;
-$helper = new FacebookCanvasLoginHelper();
-
-if (isset($_SESSION['access_token'])) {
- $token=$_SESSION['access_token'];
- try {
-  $session = new FacebookSession($token);
-  error_log("Validate");
-  $session->Validate( $appid,$secret);
-  error_log("using existing session");  
- } catch (\Exception $ex) {
-  error_log(print_r($ex,1) . " creating new session");
-  createnewsess();
- }
-} else {
-  createnewsess();
-}
-function createnewsess() {
- $helper = new FacebookCanvasLoginHelper();
- $session=$helper->getSession();
- if ($session) {
-  $token=$session->getToken();
-  $_SESSION['access_token'] = $token;
- } else {
-  $helper=new FacebookRedirectLoginHelper("https://apps.facebook.com/ycdevapp/");
-  $loginUrl=$helper->getLoginUrl();
-  unset ($_SESSION);
-  exit("<script type='text/javascript'>top.location.href = '".$loginUrl."';</script>");
- }
-}
 
 ?>
 <!DOCTYPE html>
@@ -49,7 +10,7 @@ function createnewsess() {
 
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <style>
-  div[ng-app] {
+  div[ng-controller] {
    margin-left: 5em;
    margin-top: 5em;
   }
@@ -67,7 +28,7 @@ function createnewsess() {
 </head>
 <body>
 
-<div ng-app="yahrzeitcandle" ng-controller="InplaceEditController as myCtrl">
+<div  ng-controller="yahrzeitcandleController">
  <script type="text/ng-template" id="myModalContent.html">
         <div class="modal-header">
             <h3 class="modal-title">Confirm Delete</h3>
@@ -148,9 +109,9 @@ function createnewsess() {
 <script src="ui-bootstrap-0.12.1.min.js"></script>
 <script src="ui-bootstrap-tpls-0.12.1.min.js"></script>
 <script>
- (function (){
+ 
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
-  .controller('InplaceEditController',function($scope,$resource,$log,$modal) {
+  .controller('yahrzeitcandleController',function($scope,$resource,$log,$modal) {
   $scope.gregmonths=[
   {"label":'Jan',"value":1},
   {"label":'Feb',"value":2},
@@ -249,7 +210,7 @@ function createnewsess() {
    $scope.showdeletefor=0;
    $scope.showcal=[];
    $scope.Record=$resource('ajax.php');
-   $scope.records=$scope.Record.query(function(){
+   $scope.records=$scope.Record.query({token:$scope.accessToken},function(){
     for (i=0;i<$scope.records.length;i++){
  	   record=$scope.records[i];
 	   $scope.showcal[record.id]=false;
@@ -335,7 +296,34 @@ function createnewsess() {
     $modalInstance.dismiss();
    };
   });
- })();
+  
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '130902026920290',
+		  cookie	 : true,
+          xfbml      : false,
+          version    : 'v2.3'
+        });
+		FB.getLoginStatus(function(response) {
+          console.log (response.status);
+		  if (response.status==='connected') {
+			window.accessToken = response.authResponse.accessToken;
+		    angular.bootstrap(document, ['yahrzeitcandle']);
+		  } else 
+          if (response.status==='not_authorized') {
+			  
+		  }
+		});
+      };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+
 </script>
+<div id="fb-root"></div> 
 </body>
 </html>
