@@ -206,7 +206,7 @@
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.showcal=[];
-   $scope.user=$resource('ajax.php/user',{accessToken:window.accessToken}).get();
+   $scope.user=$resource('ajax.php/user',{accessToken:$window.accessToken}).get();
    //$scope.user.get();
    $scope.Record=$resource('ajax.php/yahrzeits',{accessToken:$window.accessToken});
    $scope.records=$scope.Record.query(function(){
