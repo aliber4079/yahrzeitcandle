@@ -240,6 +240,7 @@ $loginUrl=$helper->getLoginUrl();
 	 $event.preventDefault();
 	 $event.stopPropagation();
 	 $scope.showcal=true;
+	 $scope.edited_record=record;
    };
    $scope.editinguser=false;
    $scope.showdeletefor=0;
@@ -290,7 +291,6 @@ $loginUrl=$helper->getLoginUrl();
 	record.template="edittemplate.html";
 	$scope.records.push(record);
 	$scope.editinguser=true;
-	$scope.edited_record=record;
    }
    $scope.save=function(record) {
 	record.$save(function(e){
@@ -315,7 +315,6 @@ $loginUrl=$helper->getLoginUrl();
 	 $scope.origrecord[i]=record[i];
     }
 	record.template='edittemplate.html';
-	$scope.edited_record=record;
    };
    $scope.reset=function(record,origrecord){
 	   if (record && record.id>0 && origrecord) {
