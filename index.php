@@ -31,14 +31,26 @@ $loginUrl=$helper->getLoginUrl();
 	  width: 70px;
 	  padding: 0px;
   }
-  #tablecontainer {
-	  //width:85%;
+  #tablecontainer   {
+	  width:80%;
+  }
+  
+  
+  
+  #tablecontainer  td {
+	  max-width:150px;
+  }
+  
+  .honoree{
+	  width:210px;
   }
   
   #tablecontainer .editcol {
 	  padding:0px;
 	  vertical-align: middle;
+	  max-width:75px;
   }
+  
 </style>
 </head>
 <body>
@@ -69,11 +81,7 @@ $loginUrl=$helper->getLoginUrl();
 </tr>
  </table>
  </div> <!-- /panel -->
- <div  ng-hide="editinguser||records[0].error">
- <button type="button" ng-click="addnew()">
-   <span class="glyphicon glyphicon-plus"></span>Add user
-  </button>
- </div>
+ 
 </div>
 
 <script src="angular.min.js"></script>
