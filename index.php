@@ -223,6 +223,9 @@ require "appconfig.php";
                 }
             },{scope:"email",auth_type:"rerequest",return_scopes:true});
 			 
+		 } else {
+			 $scope.user.email=true;
+			 $scope.user.$save();
 		 }
 	 } else {
 		 $scope.user.email=false;
