@@ -1,5 +1,7 @@
 <?php
 require "appconfig.php";
+
+
 ?>
 <!DOCTYPE html>
 <html><head>
@@ -350,7 +352,7 @@ require "appconfig.php";
 		    angular.bootstrap(document, ['yahrzeitcandle']);
 		  } else 
           if (response.status==='not_authorized') {
-			  
+			  top.location.href="";
 		  }
 		});
       };

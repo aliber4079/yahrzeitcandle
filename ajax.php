@@ -21,7 +21,7 @@ try {
  error_log("passed ajax validation");
  $user = ( new FacebookRequest($session, 'GET', '/me'))->execute()
 	->getGraphObject()->cast(GraphUser::className());
- $user_id=$user->getId();
+ $user_id= number_format($user->getId(),null,null,"");
  error_log($user_id);
  $permsResponse=( new FacebookRequest($session, 'GET', '/me/permissions'))->execute()
 	->getResponse();//response object
@@ -46,18 +46,20 @@ $record=json_decode(file_get_contents("php://input"));
 
 if ($_SERVER['PATH_INFO']==="/user"){
 	//error_log("user " . $_SERVER['REQUEST_METHOD']);
-	
+	$mysql->query("insert into user (id) values ('$user_id') on duplicate key update id=id");
+
 	
 	if ($_SERVER['REQUEST_METHOD']=="POST") {
-        $mysql->query("update user set email=" . intval($record->email) . " where id=" . $record->id);
+        $mysql->query("update user set email=" . intval($record->email) . " where id='" . $record->id . "'");
 	}
-	$result=$mysql->query("select * from user where id=$user_id");
+	$result=$mysql->query("select * from user where id='$user_id'");
 	$result=$result->fetch_array(MYSQLI_ASSOC);
 	$result['email']= isset ($result['email']) && $result['email'];
+	//$result['id']="" $result['id'];
 	if (isset($perms['email'])) {
 	 $result['emailperms']=$perms['email'];
 	}
-    exit(json_encode($result,JSON_NUMERIC_CHECK));
+    exit(json_encode($result));
 }
 
 
@@ -71,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD']=="DELETE") {
 }
 if ($_SERVER['REQUEST_METHOD']=="POST") {
  if ($record->id==0) {
-  $sql="insert into yahrzeit (honoree,uid,heb_day,heb_month,heb_year) values ('" . $record->honoree . "'," . $user_id . "," . $record->heb_day . "," . $record->heb_month . "," . $record->heb_year . ")";
+  $sql="insert into yahrzeit (honoree,uid,heb_day,heb_month,heb_year) values ('" . $record->honoree . "','" . $user_id . "'," . $record->heb_day . "," . $record->heb_month . "," . $record->heb_year . ")";
   error_log($sql);
   $mysql->query($sql);
   $record->id=$mysql->insert_id;
@@ -85,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
  exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
 }
-$result=$mysql->query("select * from yahrzeit");
+$result=$mysql->query("select * from yahrzeit where uid='$user_id'" );
 $results=array();
 foreach ($result as $key => $value) {
 	$results[]=$value;
