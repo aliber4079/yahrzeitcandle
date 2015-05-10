@@ -1,5 +1,5 @@
 <?php
-error_log(print_r($_GET,1));
+//error_log(print_r($_GET,1));
 
 //ini_set("error_reporting",E_ALL);
 session_start();
@@ -22,12 +22,14 @@ try {
 	->getGraphObject()->cast(GraphUser::className());
  $user_id=$user->getId();
  error_log($user_id);
- $perms=( new FacebookRequest($session, 'GET', '/me/permissions'))->execute()
+ $permsResponse=( new FacebookRequest($session, 'GET', '/me/permissions'))->execute()
 	->getResponse();//response object
- foreach ($perms->data as $perm) {
-  error_log($perm->permission);
-  error_log($perm->status);
+ foreach ($permsResponse->data as $perm) {
+  $perms[$perm->permission]=$perm->status;
+  //error_log($perm->permission);
+  //error_log($perm->status);
  }
+ error_log(print_r($perms,1));
 } catch(FacebookRequestException $ex) {
     // When Facebook returns an error
 	error_log($ex);
@@ -38,16 +40,26 @@ try {
  }
 }
 $mysql=new mysqli("localhost","root","","crud");
-error_log("user id: $user_id");
+//error_log("user id: $user_id");
+$record=json_decode(file_get_contents("php://input"));
 
 if ($_SERVER['PATH_INFO']==="/user"){
-	error_log("user");
+	//error_log("user " . $_SERVER['REQUEST_METHOD']);
+	
+	
+	if ($_SERVER['REQUEST_METHOD']=="POST") {
+        $mysql->query("update user set email=" . intval($record->email) . " where id=" . $record->id);
+	}
 	$result=$mysql->query("select * from user where id=$user_id");
-    exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
+	$result=$result->fetch_array(MYSQLI_ASSOC);
+	$result['email']= isset ($result['email']) && $result['email'];
+	if (isset($perms['email'])) {
+	 $result['emailperms']=$perms['email'];
+	}
+    exit(json_encode($result,JSON_NUMERIC_CHECK));
 }
 
 
-$record=json_decode(file_get_contents("php://input"));
 if ($_SERVER['REQUEST_METHOD']=="DELETE") {
 	$id= $_REQUEST['id'];
 	error_log("delete $id");

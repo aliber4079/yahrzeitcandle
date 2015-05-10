@@ -37,8 +37,9 @@
         </div>
   </script>
  <span ng-bind="records[0].error"></span>
- 
- <span ng-bind="user.id"></span>
+ {{user.email}}
+ <input type="checkbox" ng-model="user.email" ng-change="useremail($event)">user.email
+ {{user.id}}
 <table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="form-inline">
 <tr>
 <th>Name</th><th>Date</th>
@@ -196,7 +197,35 @@
    }  
 	  
    /*****INIT VARIABLES*****/
-     
+   $scope.useremail=function($event){
+	 /*$log.info($event);
+	 $event.preventDefault();
+	 $event.stopPropagation();*/
+	 if ($scope.user.email==true) {
+		 if ($scope.user.emailperms && $scope.user.emailperms=="declined"){
+			 $log.info("ask for email perms");
+			  $window.FB.login(function(response) {
+                if (response.authResponse) {
+				 $log.info(response.authResponse.grantedScopes);
+				 if(/email/.exec(response.authResponse.grantedScopes)){
+					 $log.info("email permission granted");
+					 $scope.user.email=true;
+					 $scope.user.$save();
+				 } else {
+		           $scope.user.email=false;
+		           $scope.user.$save();
+	             }
+                } else {
+                 $log.info('User cancelled login or did not fully authorize.');
+                }
+            },{scope:"email",auth_type:"rerequest",return_scopes:true});
+			 
+		 }
+	 } else {
+		 $scope.user.email=false;
+		 $scope.user.$save();
+	 }
+   };
    $scope.opencal=function($event,record) {
 	 $scope.showcal=$scope.showcal.map(function(x){return false});
 	 $event.preventDefault();
@@ -206,8 +235,13 @@
    $scope.addinguser=false;
    $scope.showdeletefor=0;
    $scope.showcal=[];
-   $scope.user=$resource('ajax.php/user',{accessToken:$window.accessToken}).get();
-   //$scope.user.get();
+   $scope.useresource=$resource('ajax.php/user',{accessToken:$window.accessToken});
+   $scope.user=$scope.useresource.get(function(user){
+	   if (user.email==true && user.emailperms && user.emailperms=="declined"){
+		   user.email=false;
+	   }
+   });
+   
    $scope.Record=$resource('ajax.php/yahrzeits',{accessToken:$window.accessToken});
    $scope.records=$scope.Record.query(function(){
     for (i=0;i<$scope.records.length;i++){
