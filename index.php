@@ -28,7 +28,7 @@ $loginUrl=$helper->getLoginUrl();
 	  max-width:70px;
   }
   .editcol {
-	  width: 70px;
+	  width: 100px;
 	  padding: 0px;
   }
   #tablecontainer   {
@@ -43,6 +43,10 @@ $loginUrl=$helper->getLoginUrl();
   
   .honoree{
 	  width:210px;
+  }
+  
+  .hebdate{
+	  width:auto;
   }
   
   #tablecontainer .editcol {
@@ -80,8 +84,13 @@ $loginUrl=$helper->getLoginUrl();
 
 </tr>
  </table>
- </div> <!-- /panel -->
  
+ </div> <!-- /panel -->
+ <div  ng-hide="editinguser||records[0].error">
+ <button type="button" ng-click="addnew()">
+   <span class="glyphicon glyphicon-plus"></span>Add user
+  </button>
+ </div>
 </div>
 
 <script src="angular.min.js"></script>
@@ -263,6 +272,7 @@ $loginUrl=$helper->getLoginUrl();
 	 });
    }
    $scope.addnew=function(){
+	 $log.info("addnew");
 	record=new $scope.Record;
 	record.id=0;
 	d=new Date();
@@ -270,20 +280,23 @@ $loginUrl=$helper->getLoginUrl();
 	record.greg_month=d.getMonth()+1; //0 based
 	record.greg_year=d.getFullYear();
 	$scope.gregChange(record);
+	record.template="edittemplate.html";
 	$scope.records.push(record);
 	$scope.editinguser=true;
    }
    $scope.save=function(record) {
 	record.$save(function(e){
 	 $log.info(e);
-	 if (e.id==0) {
-	  $scope.reset(record);
+	 if (!e.id || e.id==0) {
+	  $scope.reset();
+	 } else {
+      var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
+      record.greg_day=d[0];
+      record.greg_month=d[1];
+      record.greg_year=d[2];
+	  record.template="recordtemplate.html";
+      $scope.editinguser=false;
 	 }
-    var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
-    record.greg_day=d[0];
-    record.greg_month=d[1];
-    record.greg_year=d[2];
-    $scope.editinguser=false;
  	});
    }
    $scope.edit=function(record){
@@ -295,8 +308,12 @@ $loginUrl=$helper->getLoginUrl();
 	record.template='edittemplate.html';
    };
    $scope.reset=function(record,origrecord){
-	   for (i in origrecord) {
-        record[i]=origrecord[i];
+	   if (record && record.id>0 && origrecord) {
+	    for (i in origrecord) {
+         record[i]=origrecord[i];
+	    }
+	   } else {
+		 $scope.records.pop();
 	   }
 	   $scope.editinguser=false;
    };
