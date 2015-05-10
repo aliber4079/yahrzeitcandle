@@ -29,16 +29,14 @@ $loginUrl=$helper->getLoginUrl();
   }
   .editcol {
 	  width: 100px;
-	  //padding: 0px;
-	  background-color: lightgrey;
+	  padding: 0px;
+	  //background-color: lightgrey;
   }
   #tablecontainer {
-	  width:50%;
+	  width:75%;
   }
   
-  #tablecontainer td {
-	  padding:15px;
-  }
+ 
   
   #tablecontainer .editcol {
 	  padding:0px;
@@ -66,35 +64,11 @@ $loginUrl=$helper->getLoginUrl();
  <input type="checkbox" ng-model="user.email" ng-change="useremail($event)">user.email
  {{user.id}}
  <div id="tablecontainer" class="panel panel-default">
-
-<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed">
+<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed form-inline">
 <tr><th>honoree</th><th>Gregorian Date</th><th>Hebrew Date</th></tr>
-<tr  ng-repeat="record in records" ng-mouseenter="$parent.showdeletefor=record.id">
-<td>
- <input type="hidden" ng-model="record.id">
- {{record.honoree}}
-</td>
-<td><!-----greg date --------------------------------------->
- {{gregmonths[record.greg_month].label}}
- {{record.greg_day}}
- {{record.greg_year}}
-  
-</td><!-- /greg date ------------------------------------->
-<td> <!--- heb date --------------------------------------->
- {{hebmonths[record.heb_month].label}}
- {{record.heb_day}}
- {{record.heb_year}}
-</td><!-- /heb date-------------------------------------->
-<td class="editcol">
-    <span ng-show="record.id==0">
-     <button type="button" ng-click="submitnew(record)">save</button>
-     <button type="button" ng-click="reset(record)">cancel</button>
-    </span>
-	<span ng-show="showdeletefor==record.id && addinguser==false">
-	<button type="button" ng-click="confirmdelete(record)"><span class="glyphicon glyphicon-remove"></span></button>
-	<button type="button" ng-click="edit(record)"><span class="glyphicon glyphicon-pencil"></span></button>
-	</span>
-</td>
+
+<tr  ng-repeat="record in records"  ng-include="record.template" ng-mouseenter="$parent.$parent.showdeletefor=record.id">
+
 </tr>
  </table>
  </div> <!-- /panel -->
@@ -150,27 +124,27 @@ $loginUrl=$helper->getLoginUrl();
 	record.heb_month=d[1];
 	record.heb_year=d[2];
 	if (record.id>0) {
-     record.$save(function(r){ //in order to repopulate what came back from ajax
+    /*record.$save(function(r){ //in order to repopulate what came back from ajax
 	   $log.info("repop: " + r.heb_year);
 		var d=$scope.calcGreg(r.heb_day,r.heb_month,r.heb_year);
 	    r.greg_day=d[0];
 	    r.greg_month=d[1];
 	    r.greg_year=d[2];
 		r.pickerdate=new Date(r.greg_year, r.greg_month-1, r.greg_day);
-	 });
+	 });*/
 	} else { //adding new
 		record.pickerdate=new Date(record.greg_year, record.greg_month-1, record.greg_day);
 	}
    }
    $scope.hebChange=function(record){
 	if (record.id>0) {
-	 record.$save(function(r){ //in order to repopulate what came back from ajax
+	/* record.$save(function(r){ //in order to repopulate what came back from ajax
 	   var d=$scope.calcGreg(r.heb_day,r.heb_month,r.heb_year);
 	   r.greg_day=d[0];
 	   r.greg_month=d[1];
 	   r.greg_year=d[2];
 	   r.pickerdate=new Date(r.greg_year, r.greg_month-1, r.greg_day);
-	 });
+	 });*/
 	} else { //adding new
 	   var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
 	   record.greg_day=d[0];
@@ -259,6 +233,7 @@ $loginUrl=$helper->getLoginUrl();
    $scope.records=$scope.Record.query(function(){
     for (i=0;i<$scope.records.length;i++){
  	   record=$scope.records[i];
+	   record.template="recordtemplate.html";
 	   $scope.showcal[record.id]=false;
  	   var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
  	   record.greg_day=d[0];
@@ -307,12 +282,18 @@ $loginUrl=$helper->getLoginUrl();
  	 $scope.addinguser=false;
  	});
    }
-   $scope.reset=function(record){
-   if(record.id==0) {
-    $scope.records.pop();
-	$scope.addinguser=false;
-   }
-  };
+   $scope.edit=function(record){
+	$scope.origrecord={};
+    for (i in record) {
+	 $scope.origrecord[i]=record[i];
+    }
+	record.template='edittemplate.html';
+   };
+   $scope.reset=function(record,origrecord){
+	   for (i in origrecord) {
+        record[i]=origrecord[i];
+	   }
+   };
    //dialog *********
    $scope.confirmdelete=function(record) {
 	  $log.info('r u sure u want to delete ' + record.honoree);

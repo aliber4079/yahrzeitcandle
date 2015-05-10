@@ -85,7 +85,9 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
   $mysql->query($sql);
  }
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
- exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
+ $result=$result->fetch_array(MYSQLI_ASSOC);
+ $result['template']=$record->template;
+ exit(json_encode($result,JSON_NUMERIC_CHECK));
 }
 $result=$mysql->query("select * from yahrzeit where uid='$user_id'" );
 $results=array();
