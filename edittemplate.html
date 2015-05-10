@@ -1,0 +1,43 @@
+<td class="honoree">
+ <input type="hidden" ng-model="record.id">
+ <input class="form-control"  ng-model="record.honoree" ng-blur="(record.id>0) && gregChange(record)">
+</td>
+<td><!-----greg date --------------------------------------->
+  <button type="button" class="btn btn-default" ng-click="opencal($event,record)">  
+  <i class="glyphicon glyphicon-calendar"></i>
+  </button>
+  <select ng-model="record.greg_month" 
+  ng-options="month.value as month.label for month in gregmonths"
+  ng-change="gregChange(record)" 
+  class="form-control">
+  </select> 
+  <input type="number" min="1" max="31" ng-model="record.greg_day" 
+  ng-change="gregChange(record)" class="form-control day" />
+  <input type="number" ng-model="record.greg_year" 
+  ng-change="gregChange(record)" class="form-control year" />
+  <span   
+  ng-model="record.pickerdate" type="text" datepicker-popup is-open="showcal[record.id]" 
+  close-on-date-selection="false"
+  ng-change="
+  record.greg_month=record.pickerdate.getMonth()+1;
+  record.greg_day=record.pickerdate.getDate();
+  record.greg_year=record.pickerdate.getFullYear();
+  gregChange(record)"></span>
+</td><!-- /greg date ------------------------------------->
+<td> <!--- heb date --------------------------------------->
+ <select  ng-model="record.heb_month"
+ ng-options="month.value as month.label for month in hebmonths" 
+ ng-change="hebChange(record)" 
+ class="form-control">
+ </select>
+ <input type="number" min="1" max="31" ng-model="record.heb_day"  
+ ng-change="hebChange(record)" class="form-control day" />
+ <input type="number"  ng-model="record.heb_year"  
+ ng-change="hebChange(record)" 
+ class="form-control year" />
+ 
+</td><!-- /heb date-------------------------------------->
+<td class="editcol">
+     <button type="button" ng-click="save(record);record.template='recordtemplate.html'">save</button>
+     <button type="button" ng-click="reset(record,origrecord)">cancel</button>
+</td>
