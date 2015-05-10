@@ -1,3 +1,6 @@
+<?php
+require "appconfig.php";
+?>
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -332,7 +335,7 @@
   
       window.fbAsyncInit = function() {
         FB.init({
-          appId      : '130902026920290',
+          appId      : '<?= $appid ?>',
 		  cookie	 : true,
           xfbml      : false,
           version    : 'v2.3'

@@ -2,6 +2,7 @@
 //error_log(print_r($_GET,1));
 
 //ini_set("error_reporting",E_ALL);
+require "appconfig.php";
 session_start();
 define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4/');
 require FACEBOOK_SDK_V4_DIR . 'autoload.php';
@@ -9,7 +10,7 @@ use Facebook\FacebookSession;
 use Facebook\FacebookRequest;
 use Facebook\GraphUser;
 use Facebook\GraphSessionInfo;
-FacebookSession::setDefaultApplication('130902026920290', '8615d2d91ed9a24b7970062b2bc4814e');
+FacebookSession::setDefaultApplication($appid,$appsecret);
 $session=$user_id=NULL;
 if (isset($_GET['accessToken'])){
  $token=$_GET['accessToken'];
