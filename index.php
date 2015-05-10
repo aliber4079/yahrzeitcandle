@@ -29,8 +29,21 @@ $loginUrl=$helper->getLoginUrl();
   }
   .editcol {
 	  width: 100px;
+	  //padding: 0px;
+	  background-color: lightgrey;
+  }
+  #tablecontainer {
+	  width:50%;
   }
   
+  #tablecontainer td {
+	  padding:15px;
+  }
+  
+  #tablecontainer .editcol {
+	  padding:0px;
+	  vertical-align: middle;
+  }
 </style>
 </head>
 <body>
@@ -52,49 +65,25 @@ $loginUrl=$helper->getLoginUrl();
  {{user.email}}
  <input type="checkbox" ng-model="user.email" ng-change="useremail($event)">user.email
  {{user.id}}
-<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="form-inline">
-<tr>
-<th>Name</th><th>Date</th>
-</tr>
+ <div id="tablecontainer" class="panel panel-default">
+
+<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed">
+<tr><th>honoree</th><th>Gregorian Date</th><th>Hebrew Date</th></tr>
 <tr  ng-repeat="record in records" ng-mouseenter="$parent.showdeletefor=record.id">
 <td>
  <input type="hidden" ng-model="record.id">
- <input class="form-control"  ng-model="record.honoree" ng-blur="(record.id>0) && gregChange(record)">
+ {{record.honoree}}
 </td>
 <td><!-----greg date --------------------------------------->
-  <button type="button" class="btn btn-default" ng-click="opencal($event,record)">  
-  <i class="glyphicon glyphicon-calendar"></i>
-  </button>
-  <select ng-model="record.greg_month" 
-  ng-options="month.value as month.label for month in gregmonths"
-  ng-change="gregChange(record)" 
-  class="form-control">
-  </select> 
-  <input type="number" min="1" max="31" ng-model="record.greg_day" 
-  ng-change="gregChange(record)" class="form-control day" />
-  <input type="number" ng-model="record.greg_year" 
-  ng-change="gregChange(record)" class="form-control year" />
-  <span   
-  ng-model="record.pickerdate" type="text" datepicker-popup is-open="showcal[record.id]" 
-  close-on-date-selection="false"
-  ng-change="
-  record.greg_month=record.pickerdate.getMonth()+1;
-  record.greg_day=record.pickerdate.getDate();
-  record.greg_year=record.pickerdate.getFullYear();
-  gregChange(record)"></span>
+ {{gregmonths[record.greg_month].label}}
+ {{record.greg_day}}
+ {{record.greg_year}}
+  
 </td><!-- /greg date ------------------------------------->
 <td> <!--- heb date --------------------------------------->
- <select  ng-model="record.heb_month"
- ng-options="month.value as month.label for month in hebmonths" 
- ng-change="hebChange(record)" 
- class="form-control">
- </select>
- <input type="number" min="1" max="31" ng-model="record.heb_day"  
- ng-change="hebChange(record)" class="form-control day" />
- <input type="number"  ng-model="record.heb_year"  
- ng-change="hebChange(record)" 
- class="form-control year" />
- 
+ {{hebmonths[record.heb_month].label}}
+ {{record.heb_day}}
+ {{record.heb_year}}
 </td><!-- /heb date-------------------------------------->
 <td class="editcol">
     <span ng-show="record.id==0">
@@ -103,10 +92,12 @@ $loginUrl=$helper->getLoginUrl();
     </span>
 	<span ng-show="showdeletefor==record.id && addinguser==false">
 	<button type="button" ng-click="confirmdelete(record)"><span class="glyphicon glyphicon-remove"></span></button>
+	<button type="button" ng-click="edit(record)"><span class="glyphicon glyphicon-pencil"></span></button>
 	</span>
 </td>
 </tr>
  </table>
+ </div> <!-- /panel -->
  <div  ng-hide="addinguser||records[0].error">
  <button type="button" ng-click="addnew()">
    <span class="glyphicon glyphicon-plus"></span>Add user
