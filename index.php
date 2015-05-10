@@ -290,6 +290,7 @@ $loginUrl=$helper->getLoginUrl();
 	record.template="edittemplate.html";
 	$scope.records.push(record);
 	$scope.editinguser=true;
+	$scope.edited_record=record;
    }
    $scope.save=function(record) {
 	record.$save(function(e){
@@ -303,6 +304,7 @@ $loginUrl=$helper->getLoginUrl();
       record.greg_year=d[2];
 	  record.template="recordtemplate.html";
       $scope.editinguser=false;
+	  $scope.edited_record=null;
 	 }
  	});
    }
@@ -324,6 +326,7 @@ $loginUrl=$helper->getLoginUrl();
 		 $scope.records.pop();
 	   }
 	   $scope.editinguser=false;
+	   $scope.edited_record=null;
    };
    //dialog *********
    $scope.confirmdelete=function(record) {
