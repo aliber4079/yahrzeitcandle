@@ -1,6 +1,13 @@
 <?php
 require "appconfig.php";
-
+define('FACEBOOK_SDK_V4_DIR', 'c:/yahrzeitcandle/facebook-php-sdk-v4/');
+require FACEBOOK_SDK_V4_DIR . 'autoload.php';
+session_start();
+use Facebook\FacebookSession;
+use Facebook\FacebookRedirectLoginHelper;
+FacebookSession::setDefaultApplication($appid, $appsecret);
+$helper=new FacebookRedirectLoginHelper("https://apps.facebook.com/ycdevapp/");
+$loginUrl=$helper->getLoginUrl();
 
 ?>
 <!DOCTYPE html>
@@ -207,9 +214,16 @@ require "appconfig.php";
 	 $event.preventDefault();
 	 $event.stopPropagation();*/
 	 if ($scope.user.email==true) {
-		 if ($scope.user.emailperms && $scope.user.emailperms=="declined"){
-			 $log.info("ask for email perms");
-			  $window.FB.login(function(response) {
+		 if (!$scope.user.emailperms ||  $scope.user.emailperms=="declined") {
+			 opts={};
+		 if ($scope.user.emailperms=="declined"){
+			 $log.info("re-request email perms");
+			 opts={scope:"email",auth_type:"rerequest",return_scopes:true};
+		 } else {
+			  $log.info("request email perms for the 1st time");
+			  opts={scope:"email",return_scopes:true};
+		 }
+	     $window.FB.login(function(response) {
                 if (response.authResponse) {
 				 $log.info(response.authResponse.grantedScopes);
 				 if(/email/.exec(response.authResponse.grantedScopes)){
@@ -223,7 +237,7 @@ require "appconfig.php";
                 } else {
                  $log.info('User cancelled login or did not fully authorize.');
                 }
-            },{scope:"email",auth_type:"rerequest",return_scopes:true});
+            },opts);
 			 
 		 } else {
 			 $scope.user.email=true;
@@ -245,9 +259,9 @@ require "appconfig.php";
    $scope.showcal=[];
    $scope.useresource=$resource('ajax.php/user',{accessToken:$window.accessToken});
    $scope.user=$scope.useresource.get(function(user){
-	   if (user.email==true && user.emailperms && user.emailperms=="declined"){
-		   user.email=false;
-	   }
+	     if (!user.emailperms ||  user.emailperms=="declined") {
+			 user.email=false;
+		  }
    });
    
    $scope.Record=$resource('ajax.php/yahrzeits',{accessToken:$window.accessToken});
@@ -352,7 +366,7 @@ require "appconfig.php";
 		    angular.bootstrap(document, ['yahrzeitcandle']);
 		  } else 
           if (response.status==='not_authorized') {
-			  top.location.href="";
+			  top.location.href="<?= $loginUrl ?>";
 		  }
 		});
       };
