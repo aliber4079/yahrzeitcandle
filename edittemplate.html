@@ -15,14 +15,7 @@
   ng-change="gregChange(record)" class="form-control day" />
   <input type="number" ng-model="record.greg_year" 
   ng-change="gregChange(record)" class="form-control year" />
-  <span   
-  ng-model="record.pickerdate" type="text" datepicker-popup is-open="showcal[record.id]" 
-  close-on-date-selection="false"
-  ng-change="
-  record.greg_month=record.pickerdate.getMonth()+1;
-  record.greg_day=record.pickerdate.getDate();
-  record.greg_year=record.pickerdate.getFullYear();
-  gregChange(record)"></span>
+  
 </td><!-- /greg date ------------------------------------->
 <td> <!--- heb date --------------------------------------->
  <select  ng-model="record.heb_month"

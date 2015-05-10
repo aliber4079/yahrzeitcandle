@@ -32,7 +32,7 @@ $loginUrl=$helper->getLoginUrl();
 	  padding: 0px;
   }
   #tablecontainer   {
-	  width:80%;
+	  width:100%;
   }
   
   
@@ -78,7 +78,16 @@ $loginUrl=$helper->getLoginUrl();
  {{user.id}}
  <div id="tablecontainer" class="panel panel-default">
 <table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed form-inline">
-<tr><th>honoree</th><th>Gregorian Date</th><th>Hebrew Date</th></tr>
+<tr><th>honoree</th><th>Gregorian Date
+<span   
+  ng-model="edited_record.pickerdate" type="text" datepicker-popup is-open="$parent.showcal" 
+  close-on-date-selection="false" 
+  ng-change="
+  edited_record.greg_month=edited_record.pickerdate.getMonth()+1;
+  edited_record.greg_day=edited_record.pickerdate.getDate();
+  edited_record.greg_year=edited_record.pickerdate.getFullYear();
+  gregChange(edited_record)"></span>	
+</th><th>Hebrew Date</th></tr>
 
 <tr  ng-repeat="record in records"  ng-include="record.template" ng-mouseenter="$parent.$parent.showdeletefor=record.id">
 
@@ -228,14 +237,13 @@ $loginUrl=$helper->getLoginUrl();
 	 }
    };
    $scope.opencal=function($event,record) {
-	 $scope.showcal=$scope.showcal.map(function(x){return false});
 	 $event.preventDefault();
 	 $event.stopPropagation();
-	 $scope.showcal[record.id]=true;
+	 $scope.showcal=true;
    };
    $scope.editinguser=false;
    $scope.showdeletefor=0;
-   $scope.showcal=[];
+   $scope.showcal=false;
    $scope.useresource=$resource('ajax.php/user',{accessToken:$window.accessToken});
    $scope.user=$scope.useresource.get(function(user){
 	     if (!user.emailperms ||  user.emailperms=="declined") {
@@ -248,7 +256,6 @@ $loginUrl=$helper->getLoginUrl();
     for (i=0;i<$scope.records.length;i++){
  	   record=$scope.records[i];
 	   record.template="recordtemplate.html";
-	   $scope.showcal[record.id]=false;
  	   var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
  	   record.greg_day=d[0];
  	   record.greg_month=d[1];
@@ -306,6 +313,7 @@ $loginUrl=$helper->getLoginUrl();
 	 $scope.origrecord[i]=record[i];
     }
 	record.template='edittemplate.html';
+	$scope.edited_record=record;
    };
    $scope.reset=function(record,origrecord){
 	   if (record && record.id>0 && origrecord) {
