@@ -18,7 +18,7 @@ $loginUrl=$helper->getLoginUrl();
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 <style>
   div[ng-controller] {
-   margin-left: 5em;
+   margin-left: 5px;
    margin-top: 5em;
   }
   .year {
@@ -28,15 +28,12 @@ $loginUrl=$helper->getLoginUrl();
 	  max-width:70px;
   }
   .editcol {
-	  width: 100px;
+	  width: 70px;
 	  padding: 0px;
-	  //background-color: lightgrey;
   }
   #tablecontainer {
-	  width:75%;
+	  //width:85%;
   }
-  
- 
   
   #tablecontainer .editcol {
 	  padding:0px;
@@ -72,7 +69,7 @@ $loginUrl=$helper->getLoginUrl();
 </tr>
  </table>
  </div> <!-- /panel -->
- <div  ng-hide="addinguser||records[0].error">
+ <div  ng-hide="editinguser||records[0].error">
  <button type="button" ng-click="addnew()">
    <span class="glyphicon glyphicon-plus"></span>Add user
   </button>
@@ -123,29 +120,29 @@ $loginUrl=$helper->getLoginUrl();
 	record.heb_day=d[0];
 	record.heb_month=d[1];
 	record.heb_year=d[2];
-	if (record.id>0) {
-    /*record.$save(function(r){ //in order to repopulate what came back from ajax
+	if (false && record.id>0) {
+     record.$save(function(r){ //in order to repopulate what came back from ajax
 	   $log.info("repop: " + r.heb_year);
 		var d=$scope.calcGreg(r.heb_day,r.heb_month,r.heb_year);
 	    r.greg_day=d[0];
 	    r.greg_month=d[1];
 	    r.greg_year=d[2];
 		r.pickerdate=new Date(r.greg_year, r.greg_month-1, r.greg_day);
-	 });*/
-	} else { //adding new
+	 });
+	} else { 
 		record.pickerdate=new Date(record.greg_year, record.greg_month-1, record.greg_day);
 	}
    }
    $scope.hebChange=function(record){
-	if (record.id>0) {
-	/* record.$save(function(r){ //in order to repopulate what came back from ajax
+	if (false && record.id>0) {
+	 record.$save(function(r){ //in order to repopulate what came back from ajax
 	   var d=$scope.calcGreg(r.heb_day,r.heb_month,r.heb_year);
 	   r.greg_day=d[0];
 	   r.greg_month=d[1];
 	   r.greg_year=d[2];
 	   r.pickerdate=new Date(r.greg_year, r.greg_month-1, r.greg_day);
-	 });*/
-	} else { //adding new
+	 });
+	} else { 
 	   var d=$scope.calcGreg(record.heb_day,record.heb_month,record.heb_year);
 	   record.greg_day=d[0];
 	   record.greg_month=d[1];
@@ -219,7 +216,7 @@ $loginUrl=$helper->getLoginUrl();
 	 $event.stopPropagation();
 	 $scope.showcal[record.id]=true;
    };
-   $scope.addinguser=false;
+   $scope.editinguser=false;
    $scope.showdeletefor=0;
    $scope.showcal=[];
    $scope.useresource=$resource('ajax.php/user',{accessToken:$window.accessToken});
@@ -266,9 +263,9 @@ $loginUrl=$helper->getLoginUrl();
 	record.greg_year=d.getFullYear();
 	$scope.gregChange(record);
 	$scope.records.push(record);
-	$scope.addinguser=true;
+	$scope.editinguser=true;
    }
-   $scope.submitnew=function(record) {
+   $scope.save=function(record) {
 	record.$save(function(e){
 	 $log.info(e);
 	 if (e.id==0) {
@@ -278,11 +275,11 @@ $loginUrl=$helper->getLoginUrl();
     record.greg_day=d[0];
     record.greg_month=d[1];
     record.greg_year=d[2];
-    //$log.info('greg_month ' + d[1]);
- 	 $scope.addinguser=false;
+    $scope.editinguser=false;
  	});
    }
    $scope.edit=function(record){
+	$scope.editinguser=true;
 	$scope.origrecord={};
     for (i in record) {
 	 $scope.origrecord[i]=record[i];
@@ -293,6 +290,7 @@ $loginUrl=$helper->getLoginUrl();
 	   for (i in origrecord) {
         record[i]=origrecord[i];
 	   }
+	   $scope.editinguser=false;
    };
    //dialog *********
    $scope.confirmdelete=function(record) {
