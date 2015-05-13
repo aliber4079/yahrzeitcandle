@@ -2,7 +2,7 @@
  <input type="hidden" ng-model="record.id">
  {{record.honoree}}
 </td>
-<td><!-----greg date --------------------------------------->
+<td class="gregdate"><!-----greg date --------------------------------------->
  {{gregmonths[record.greg_month-1].label}}
  {{record.greg_day}}
  {{record.greg_year}}
@@ -24,3 +24,4 @@
 	<button type="button" ng-click="confirmdelete(record)"><span class="glyphicon glyphicon-remove"></span></button>
 	</span>
 </td>
+<td></td>

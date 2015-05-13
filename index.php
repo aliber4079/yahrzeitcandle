@@ -8,7 +8,7 @@ use Facebook\FacebookRedirectLoginHelper;
 FacebookSession::setDefaultApplication($appid, $appsecret);
 $helper=new FacebookRedirectLoginHelper("https://apps.facebook.com/ycdevapp/");
 $loginUrl=$helper->getLoginUrl();
-
+error_log("l: $loginUrl");
 ?>
 <!DOCTYPE html>
 <html><head>
@@ -29,30 +29,26 @@ $loginUrl=$helper->getLoginUrl();
   }
   .editcol {
 	  width: 100px;
-	  padding: 0px;
   }
   #tablecontainer   {
 	  width:100%;
   }
   
-  
-  
-  #tablecontainer  td {
-	  max-width:150px;
+  .editinguser .hebdate{
+	  width:350px;
   }
   
-  .honoree{
-	  width:210px;
+ .honoree,.hebdate  {
+	  width:150px;
   }
-  
-  .hebdate{
-	  width:auto;
+  .gregdate {
+	  width:350px;
   }
   
   #tablecontainer .editcol {
 	  padding:0px;
 	  vertical-align: middle;
-	  max-width:75px;
+	  width:150px;
   }
   
 </style>
@@ -77,7 +73,8 @@ $loginUrl=$helper->getLoginUrl();
  <input type="checkbox" ng-model="user.email" ng-change="useremail($event)">user.email
  {{user.id}}
  <div id="tablecontainer" class="panel panel-default">
-<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed form-inline">
+<table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed form-inline"
+ ng-class="{editinguser:editinguser}">
 <tr><th>honoree</th><th>Gregorian Date
 <span   
   ng-model="edited_record.pickerdate" type="text" datepicker-popup is-open="$parent.showcal" 
