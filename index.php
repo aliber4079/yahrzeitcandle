@@ -70,7 +70,7 @@ error_log("l: $loginUrl");
   </script>
  <span ng-bind="records[0].error"></span>
  {{user.email}}
- <input type="checkbox" ng-model="user.email" ng-change="useremail($event)">user.email
+ <input type="checkbox" ng-model="user.email" ng-change="useremail(user.email)">user.email
  {{user.id}}
  <div id="tablecontainer" class="panel panel-default">
 <table ng-if="!records[0].error" ng-mouseleave="showdeletefor=0" class="table table-condensed form-inline"
@@ -194,30 +194,47 @@ error_log("l: $loginUrl");
    }  
 	  
    /*****INIT VARIABLES*****/
-   $scope.useremail=function($event){
-	 /*$log.info($event);
-	 $event.preventDefault();
-	 $event.stopPropagation();*/
-	 if ($scope.user.email==true) {
-		 if (!$scope.user.emailperms ||  $scope.user.emailperms=="declined") {
+   $scope.photo =function(record) {
+	   $log.info($scope.user.perms);
+   }
+   
+   $scope.useremail=function(email){
+	   if (email) {
+	   checkperm("email",function(perm) {
+		   if (perm){
+		    $scope.user.email=true;
+		    $scope.user.$save();
+		   } else {
+		    $scope.user.email=false;
+		    $scope.user.$save();
+	       }
+	   });
+	  } else {
+		  $scope.user.email=false;
+		  $scope.user.$save();
+	  }
+   }
+   
+   function checkperm(perm,cb) {
+		 if (!$scope.user.perms[perm] ||  $scope.user.perms[perm]=="declined") {
 			 opts={};
-		 if ($scope.user.emailperms=="declined"){
-			 $log.info("re-request email perms");
-			 opts={scope:"email",auth_type:"rerequest",return_scopes:true};
+		 if ($scope.user.perms[perm]=="declined"){
+			 $log.info("re-request "+ perm +" perms");
+			 opts={scope:perm,auth_type:"rerequest",return_scopes:true};
 		 } else {
-			  $log.info("request email perms for the 1st time");
-			  opts={scope:"email",return_scopes:true};
+			  $log.info("request "+ perm +" perms for the 1st time");
+			  opts={scope:perm,return_scopes:true};
 		 }
 	     $window.FB.login(function(response) {
                 if (response.authResponse) {
 				 $log.info(response.authResponse.grantedScopes);
-				 if(/email/.exec(response.authResponse.grantedScopes)){
-					 $log.info("email permission granted");
-					 $scope.user.email=true;
-					 $scope.user.$save();
+				 if(response.authResponse.grantedScopes.indexOf(perm)!=-1){
+					 $log.info(perm + " permission granted");
+					 cb(true);
 				 } else {
-		           $scope.user.email=false;
-		           $scope.user.$save();
+		            //declined
+					$log.info(perm + " declined");
+					cb(false);
 	             }
                 } else {
                  $log.info('User cancelled login or did not fully authorize.');
@@ -225,14 +242,11 @@ error_log("l: $loginUrl");
             },opts);
 			 
 		 } else {
-			 $scope.user.email=true;
-			 $scope.user.$save();
+			//already has perm
+			cb(true);
 		 }
-	 } else {
-		 $scope.user.email=false;
-		 $scope.user.$save();
-	 }
-   };
+	 };
+   
    $scope.opencal=function($event,record) {
 	 $event.preventDefault();
 	 $event.stopPropagation();
@@ -244,7 +258,7 @@ error_log("l: $loginUrl");
    $scope.showcal=false;
    $scope.useresource=$resource('ajax.php/user',{accessToken:$window.accessToken});
    $scope.user=$scope.useresource.get(function(user){
-	     if (!user.emailperms ||  user.emailperms=="declined") {
+	     if (!user.perms.email ||  user.perms.email=="declined") {
 			 user.email=false;
 		  }
    });

@@ -30,7 +30,7 @@ try {
   //error_log($perm->permission);
   //error_log($perm->status);
  }
- error_log(print_r($perms,1));
+ error_log("perms: " . print_r($perms,1));
 } catch(FacebookRequestException $ex) {
     // When Facebook returns an error
 	error_log($ex);
@@ -56,8 +56,8 @@ if ($_SERVER['PATH_INFO']==="/user"){
 	$result=$result->fetch_array(MYSQLI_ASSOC);
 	$result['email']= isset ($result['email']) && $result['email'];
 	//$result['id']="" $result['id'];
-	if (isset($perms['email'])) {
-	 $result['emailperms']=$perms['email'];
+	if (isset($perms)){
+		$result['perms']=$perms;
 	}
     exit(json_encode($result));
 }
