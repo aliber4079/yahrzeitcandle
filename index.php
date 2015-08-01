@@ -194,9 +194,23 @@ error_log("l: $loginUrl");
    }  
 	  
    /*****INIT VARIABLES*****/
-   $scope.photo =function(record) {
-	   $log.info($scope.user.perms);
-   }
+   $scope.photo = function(record) {
+	  $log.info($scope.user.perms);
+	  var modalInstance = $modal.open({
+       templateUrl: 'photo.html',
+       controller: 'PhotoModalInstanceCtrl',
+       size: 'lg',
+       resolve: {
+        record:  function(){return record;}
+       }
+    });
+	modalInstance.result.then(function (record) {
+      $log.info('photo for ' + record.honoree);
+	  document.forms[0].submit();
+    }, function () {
+      $log.info('photo modal dismissed at: ' + new Date());
+    })
+   };
    
    $scope.useremail=function(email){
 	   if (email) {
@@ -343,7 +357,7 @@ error_log("l: $loginUrl");
 	  $log.info('r u sure u want to delete ' + record.honoree);
 	  var modalInstance = $modal.open({
        templateUrl: 'myModalContent.html',
-       controller: 'ModalInstanceCtrl',
+       controller: 'DeleteModalInstanceCtrl',
        size: 'sm',
        resolve: {
         record:  function(){return record;}
@@ -357,12 +371,18 @@ error_log("l: $loginUrl");
     });
 
    };
-  }).controller('ModalInstanceCtrl', function ($scope, $modalInstance, $log, record) {
+  }).controller('DeleteModalInstanceCtrl', function ($scope, $modalInstance, $log, record) {
    $scope.record=record;
    $scope.ok = function () {
     $modalInstance.close(record);
    };
-
+   $scope.cancel = function () {
+    $modalInstance.dismiss();
+   };
+  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record) { 
+   $scope.ok = function () {
+	 document.forms[0].submit();
+   }
    $scope.cancel = function () {
     $modalInstance.dismiss();
    };
@@ -393,6 +413,12 @@ error_log("l: $loginUrl");
          js.src = "//connect.facebook.net/en_US/sdk.js";
          fjs.parentNode.insertBefore(js, fjs);
        }(document, 'script', 'facebook-jssdk'));
+	   
+	   
+function blap (photo){
+ console.log("blap " );
+ //document.getElementById('photo').innerHTML="<img src=\""+ photo +"\">";
+}
 
 </script>
 <div id="fb-root"></div> 
