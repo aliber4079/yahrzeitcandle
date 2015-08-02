@@ -1,0 +1,23 @@
+<div class="modal-header">
+<div class="modal-body"> select photo for {{record.honoree}}
+<table><tr>
+<td>
+<ul>
+<li ng-repeat="album in albums" ng-click="listphotos(album)">{{album.name}}</li>
+</ul>
+</td>
+<td >
+ <div style="height: 305px" >
+    <carousel  no-wrap="1">
+      <slide ng-repeat="photo in photos" >
+        <img ng-src="{{photo.images[0].source}}" style="max-width=100px;max-height=100px;">
+      </slide>
+    </carousel>
+  </div>
+</td>
+</tr></table>
+</div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok();">OK</button>
+            <button class="btn btn-warning" ng-click="cancel();">Cancel</button>
+        </div>
