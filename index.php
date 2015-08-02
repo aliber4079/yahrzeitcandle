@@ -107,6 +107,7 @@ error_log("l: $loginUrl");
  
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
   .controller('yahrzeitcandleController',function($scope,$resource,$log,$modal,$window) {
+  //$scope.albums=[{name:"one"},{name:"two"}];
   $scope.gregmonths=[
   {"label":'Jan',"value":1},
   {"label":'Feb',"value":2},
@@ -196,12 +197,17 @@ error_log("l: $loginUrl");
    /*****INIT VARIABLES*****/
    $scope.photo = function(record) {
 	  $log.info($scope.user.perms);
+      FB.api("/me/albums","get",null,function(response){
+       console.log(response);
+	   if (response && response.data){
+		   var albums=response.data;
 	  var modalInstance = $modal.open({
        templateUrl: 'photo.html',
        controller: 'PhotoModalInstanceCtrl',
        size: 'lg',
        resolve: {
-        record:  function(){return record;}
+        record:  function(){return record;},
+		albums: function() {return albums;}
        }
     });
 	modalInstance.result.then(function (record) {
@@ -211,7 +217,8 @@ error_log("l: $loginUrl");
       $log.info('photo modal dismissed at: ' + new Date());
     })
    };
-   
+   }
+      )};
    $scope.useremail=function(email){
 	   if (email) {
 	   checkperm("email",function(perm) {
@@ -379,9 +386,12 @@ error_log("l: $loginUrl");
    $scope.cancel = function () {
     $modalInstance.dismiss();
    };
-  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record) { 
+  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record, albums) {
+   $log.info("photo for " + record);
+   $scope.record=record;
+   $scope.albums=albums;
    $scope.ok = function () {
-	 document.forms[0].submit();
+    $modalInstance.dismiss();
    }
    $scope.cancel = function () {
     $modalInstance.dismiss();
@@ -393,7 +403,7 @@ error_log("l: $loginUrl");
           appId      : '<?= $appid ?>',
 		  cookie	 : true,
           xfbml      : false,
-          version    : 'v2.3'
+          version    : 'v2.4'
         });
 		FB.getLoginStatus(function(response) {
           console.log (response.status);
