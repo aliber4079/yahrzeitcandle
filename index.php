@@ -207,12 +207,13 @@ error_log("l: $loginUrl");
        size: 'lg',
        resolve: {
         record:  function(){return record;},
-		albums: function() {return albums;}
+		albums:  function(){return albums;}
        }
     });
 	modalInstance.result.then(function (record) {
       $log.info('photo for ' + record.honoree);
-	  document.forms[0].submit();
+	  $log.info('photo: ' + record.photo);
+	  $scope.save(record);
     }, function () {
       $log.info('photo modal dismissed at: ' + new Date());
     })
@@ -399,7 +400,8 @@ error_log("l: $loginUrl");
 		}
 	}
 	$log.info("active photo: " + $scope.activePhoto);
-    $modalInstance.dismiss();
+	$scope.record.photo=$scope.activePhoto;
+    $modalInstance.close($scope.record);
    }
    $scope.cancel = function () {
     $modalInstance.dismiss();

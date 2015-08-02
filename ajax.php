@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
   exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
  } else {
   $sql="update yahrzeit set honoree='" . $record->honoree . "', heb_day=" . $record->heb_day . 
-  ", heb_month=". $record->heb_month . ", heb_year=" . $record->heb_year . " where id = " . $record->id;
+  ", heb_month=". $record->heb_month . ", heb_year=" . $record->heb_year . ", photo='" . $record->photo . "' where id = " . $record->id;
   $mysql->query($sql);
  }
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
