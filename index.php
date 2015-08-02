@@ -386,12 +386,19 @@ error_log("l: $loginUrl");
    $scope.cancel = function () {
     $modalInstance.dismiss();
    };
-  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record, albums) {
-   $log.info("photo for " + record);
+  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record, albums,$window) {
    $scope.photos=null;
    $scope.record=record;
    $scope.albums=albums;
    $scope.ok = function () {
+    $scope.activePhoto="";
+	for (i in $scope.photos){
+		if ($scope.photos[i].active) {
+			$scope.activePhoto=$scope.photos[i].id;
+			break;
+		}
+	}
+	$log.info("active photo: " + $scope.activePhoto);
     $modalInstance.dismiss();
    }
    $scope.cancel = function () {
@@ -399,15 +406,10 @@ error_log("l: $loginUrl");
    };
    $scope.listphotos = function(album){
 	   $scope.photos=null;
-	   $log.info(album.id);
-	   /*$scope.photos=[{images:[{source:"https://scontent.xx.fbcdn.net/hphotos-xaf1/v/t1.0-9/284496_10150313795226421_4001808_n.jpg?oh=d0aa98c157be972ead42ffca07d8c0c5&oe=564F73AB"}]}];*/
 	   FB.api("/" + album.id + "/photos","get",{fields:["id","images","picture"]},function(response){
-        console.log(response);
 		if (response && response.data){
 			$scope.photos=response.data;
-			//setTimeout(function(){
-			$scope.$digest();
-			//},2000);
+			$scope.$apply();
 		} else {
 			$log.info("oops");
 		}

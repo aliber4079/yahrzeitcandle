@@ -11,10 +11,10 @@
 </div>
 </td>
 <td style="width:20px;"></td>
-<td id="photospace" >
+<td>
  <div >
-    <carousel  no-wrap="1">
-      <slide ng-repeat="photo in photos" >
+    <carousel  no-wrap="true">
+      <slide ng-repeat="photo in photos" active="photo.active">
         <img ng-src="{{photo.picture}}" >
       </slide>
     </carousel>
