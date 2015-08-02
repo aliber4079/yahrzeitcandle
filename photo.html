@@ -1,16 +1,21 @@
 <div class="modal-header">
-<div class="modal-body"> select photo for {{record.honoree}}
-<table><tr>
-<td>
-<ul>
-<li ng-repeat="album in albums" ng-click="listphotos(album)">{{album.name}}</li>
-</ul>
-</td>
+ <h3 class="modal-title">select photo for {{record.honoree}}</h3>
+</div>
+<div class="modal-body">
+<table ><tr>
 <td >
- <div style="height: 305px" >
+<div style="height:305px;width:200px;overflow-y:auto;">
+<tabset vertical="true" type="pills">
+    <tab ng-repeat="album in albums" heading="{{album.name}}" select="listphotos(album)" />
+</tabset>
+</div>
+</td>
+<td style="width:20px;"></td>
+<td id="photospace" >
+ <div >
     <carousel  no-wrap="1">
       <slide ng-repeat="photo in photos" >
-        <img ng-src="{{photo.images[0].source}}" style="max-width=100px;max-height=100px;">
+        <img ng-src="{{photo.picture}}" >
       </slide>
     </carousel>
   </div>

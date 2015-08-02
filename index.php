@@ -401,7 +401,7 @@ error_log("l: $loginUrl");
 	   $scope.photos=null;
 	   $log.info(album.id);
 	   /*$scope.photos=[{images:[{source:"https://scontent.xx.fbcdn.net/hphotos-xaf1/v/t1.0-9/284496_10150313795226421_4001808_n.jpg?oh=d0aa98c157be972ead42ffca07d8c0c5&oe=564F73AB"}]}];*/
-	   FB.api("/" + album.id + "/photos","get",{fields:["id","images"]},function(response){
+	   FB.api("/" + album.id + "/photos","get",{fields:["id","images","picture"]},function(response){
         console.log(response);
 		if (response && response.data){
 			$scope.photos=response.data;
