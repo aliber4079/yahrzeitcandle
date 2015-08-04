@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD']=="DELETE") {
 	exit("{\"id\":$id}");
 }
 if ($_SERVER['REQUEST_METHOD']=="POST") {
+	error_log(print_r($record,1));
  if ($record->id==0) {
   $sql="insert into yahrzeit (honoree,uid,heb_day,heb_month,heb_year) values ('" . $record->honoree . "','" . $user_id . "'," . $record->heb_day . "," . $record->heb_month . "," . $record->heb_year . ")";
   error_log($sql);
@@ -83,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
   exit(json_encode($result->fetch_array(MYSQLI_ASSOC)));
  } else {
   $sql="update yahrzeit set honoree='" . $record->honoree . "', heb_day=" . $record->heb_day . 
-  ", heb_month=". $record->heb_month . ", heb_year=" . $record->heb_year . ", photo='" . $record->photo . "' where id = " . $record->id;
+  ", heb_month=". $record->heb_month . ", heb_year=" . $record->heb_year;
+  if (isset($record->photo->id)){
+	  $sql.= ", photo='" . $record->photo->id ."' "; 
+  }
+  $sql.=" where id = " . $record->id;
+  error_log($sql);
   $mysql->query($sql);
  }
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);

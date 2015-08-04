@@ -200,20 +200,15 @@ error_log("l: $loginUrl");
    /*****INIT VARIABLES*****/
    $scope.photo = function(record) {
 	  $log.info($scope.user.perms);
-      FB.api("/me/albums","get",null,function(response){
-       console.log(response);
-	   if (response && response.data){
-		   var albums=response.data;
 	  var modalInstance = $modal.open({
        templateUrl: 'photo.html',
        controller: 'PhotoModalInstanceCtrl',
        size: 'lg',
        resolve: {
-        record:  function(){return record;},
-		albums:  function(){return albums;}
+        record:  function(){return record;}
        }
-    });
-	modalInstance.result.then(function (record) {
+    });      
+	 modalInstance.result.then(function (record) {
       $log.info('photo for ' + record.honoree);
 	  $log.info('photo: ' + record.photo);
 	  $scope.save(record);
@@ -221,8 +216,6 @@ error_log("l: $loginUrl");
       $log.info('photo modal dismissed at: ' + new Date());
     })
    };
-   }
-      )};
    $scope.useremail=function(email){
 	   if (email) {
 	   checkperm("email",function(perm) {
@@ -326,6 +319,7 @@ error_log("l: $loginUrl");
 	$scope.editinguser=true;
    }
    $scope.save=function(record) {
+	var origphoto=record.photo;
 	record.$save(function(e){
 	 $log.info(e);
 	 if (!e.id || e.id==0) {
@@ -338,7 +332,8 @@ error_log("l: $loginUrl");
 	  record.template="recordtemplate.html";
       $scope.editinguser=false;
 	  $scope.edited_record=null;
-	  if (record.photo && record.photo.id){
+	  record.photo=origphoto;
+	  /*if (record.photo && record.photo.id){
 	   FB.api("/" + record.photo.id,"get",{fields:["picture"]},function(response){
 		if (response){
 			$log.info(response);
@@ -348,7 +343,7 @@ error_log("l: $loginUrl");
 			$log.info("oops");
 		}
 	   });
-	  }
+	  }*/
 	 }
  	});
    }
@@ -398,15 +393,22 @@ error_log("l: $loginUrl");
    $scope.cancel = function () {
     $modalInstance.dismiss();
    };
-  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record, albums,$window) {
+  }).controller('PhotoModalInstanceCtrl', function ($scope, $modalInstance, $log, record, $window) {
    $scope.photos=null;
    $scope.record=record;
-   $scope.albums=albums;
+   $scope.albums=null;
+   FB.api("/me/albums","get",null,function(response){
+     console.log(response);
+     if (response && response.data){
+  	   $scope.albums=response.data;
+	   $scope.$apply();
+  	 }
+   });
    $scope.ok = function () {
     $scope.activePhoto="";
 	for (i in $scope.photos){
 		if ($scope.photos[i].active) {
-			$scope.activePhoto=$scope.photos[i].id;
+			$scope.activePhoto=$scope.photos[i];
 			break;
 		}
 	}
