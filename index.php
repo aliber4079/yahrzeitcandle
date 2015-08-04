@@ -107,7 +107,10 @@ error_log("l: $loginUrl");
  
   angular.module('yahrzeitcandle',['ngResource','ui.bootstrap'])
   .controller('yahrzeitcandleController',function($scope,$resource,$log,$modal,$window) {
-  //$scope.albums=[{name:"one"},{name:"two"}];
+  $scope.getphoto=function(a,b){
+	  $log.info(a);
+	  $log.info(b);
+  }
   $scope.gregmonths=[
   {"label":'Jan',"value":1},
   {"label":'Feb',"value":2},
@@ -298,9 +301,6 @@ error_log("l: $loginUrl");
 	   record.pickerdate=new Date(record.greg_year, record.greg_month-1, record.greg_day);
 	}
    },function(){$log.info("oops");});
-   $scope.mousenter=function(){
-	   //console.log('mousenter');
-   } 
    $scope.delete=function(r) {
 	 r.$remove({"id":r.id}, function() {
 	  $log.info("deleting " + r.id);
@@ -313,7 +313,7 @@ error_log("l: $loginUrl");
 	 });
    }
    $scope.addnew=function(){
-	 $log.info("addnew");
+	$log.info("addnew");
 	record=new $scope.Record;
 	record.id=0;
 	d=new Date();
@@ -338,6 +338,17 @@ error_log("l: $loginUrl");
 	  record.template="recordtemplate.html";
       $scope.editinguser=false;
 	  $scope.edited_record=null;
+	  if (record.photo && record.photo.id){
+	   FB.api("/" + record.photo.id,"get",{fields:["picture"]},function(response){
+		if (response){
+			$log.info(response);
+			record.photo=response;
+			$scope.$apply();
+		} else {
+			$log.info("oops");
+		}
+	   });
+	  }
 	 }
  	});
    }

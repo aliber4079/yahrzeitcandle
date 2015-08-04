@@ -30,7 +30,7 @@ try {
   //error_log($perm->permission);
   //error_log($perm->status);
  }
- error_log("perms: " . print_r($perms,1));
+ //error_log("perms: " . print_r($perms,1));
 } catch(FacebookRequestException $ex) {
     // When Facebook returns an error
 	error_log($ex);
@@ -41,6 +41,8 @@ try {
  }
 }
 $mysql=new mysqli("localhost","root","","crud");
+$mysql->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, 1);
+
 //error_log("user id: $user_id");
 $record=json_decode(file_get_contents("php://input"));
 
@@ -78,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
   $mysql->query($sql);
   $record->id=$mysql->insert_id;
   $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
-  exit(json_encode($result->fetch_array(MYSQLI_ASSOC),JSON_NUMERIC_CHECK));
+  exit(json_encode($result->fetch_array(MYSQLI_ASSOC)));
  } else {
   $sql="update yahrzeit set honoree='" . $record->honoree . "', heb_day=" . $record->heb_day . 
   ", heb_month=". $record->heb_month . ", heb_year=" . $record->heb_year . ", photo='" . $record->photo . "' where id = " . $record->id;
@@ -87,12 +89,32 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
  $result=$mysql->query("select * from yahrzeit where id=" . $record->id);
  $result=$result->fetch_array(MYSQLI_ASSOC);
  $result['template']=$record->template;
- exit(json_encode($result,JSON_NUMERIC_CHECK));
+ if(isset($result["photo"])){
+  settype($result["photo"],"string");
+  error_log($result["photo"]);
+  $photobj=array("id"=> $result["photo"]);
+  $result["photo"]=$photobj;
+ }
+ error_log(json_encode($result));
+ exit(json_encode($result));
 }
 $result=$mysql->query("select * from yahrzeit where uid='$user_id'" );
 $results=array();
 foreach ($result as $key => $value) {
+	$photobj=array("id"=> $value["photo"] );
+	$value["photo"]=$photobj;
 	$results[]=$value;
 }
-exit(json_encode($results,JSON_NUMERIC_CHECK));
+/*error_log("also get photos");
+$result=$mysql->query("select photo from yahrzeit where uid='$user_id' and photo is not null") or error_log($mysql->error);
+$photos=array();
+foreach ($result as $key => $value) {
+	$photos[]=$value;
+}
+$photos=array_column($photos,"photo");
+error_log("photos: " . print_r($photos,1));
+//$x = (new FacebookRequest($session, 'GET', '/?ids=' . implode(",", $photos) . '&fields=picture'))->execute()->getResponse();
+//error_log("fb resp: " . print_r($x,1));
+//$results["photos"]=$x;*/
+exit(json_encode($results));
 ?>

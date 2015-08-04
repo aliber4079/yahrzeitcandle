@@ -13,6 +13,9 @@
  {{record.heb_day}}
  {{record.heb_year}}
 </td><!-- /heb date-------------------------------------->
+<td> <!----- photo ---------------------------------->
+ <img ng-src="{{record.photo.picture}}">
+</td> <!---- /photo --------------------------------->
 <td class="editcol" >
     <span ng-show="record.id==0">
      <button type="button" ng-click="submitnew(record)">save</button>
