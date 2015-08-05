@@ -104,23 +104,24 @@ if ($_SERVER['REQUEST_METHOD']=="POST") {
  error_log(json_encode($result));
  exit(json_encode($result));
 }
-$result=$mysql->query("select * from yahrzeit where uid='$user_id'" );
-$results=array();
-foreach ($result as $key => $value) {
-	$photobj=array("id"=> $value["photo"] );
-	$value["photo"]=$photobj;
-	$results[]=$value;
-}
-/*error_log("also get photos");
-$result=$mysql->query("select photo from yahrzeit where uid='$user_id' and photo is not null") or error_log($mysql->error);
+error_log("also get photos");
+$result=$mysql->query("select distinct photo from yahrzeit where uid='$user_id' and photo is not null") or error_log($mysql->error);
 $photos=array();
 foreach ($result as $key => $value) {
 	$photos[]=$value;
 }
 $photos=array_column($photos,"photo");
 error_log("photos: " . print_r($photos,1));
-//$x = (new FacebookRequest($session, 'GET', '/?ids=' . implode(",", $photos) . '&fields=picture'))->execute()->getResponse();
+$x = (new FacebookRequest($session, 'GET', '/?ids=' . implode(",", $photos) . '&fields=picture'))->execute()->getResponse();
+$result=$mysql->query("select * from yahrzeit where uid='$user_id'" );
+$results=array();
+foreach ($result as $key => $value) {
+	$photobj=$x->{$value["photo"]};
+	$value["photo"]=$photobj;
+	$results[]=$value;
+}
 //error_log("fb resp: " . print_r($x,1));
-//$results["photos"]=$x;*/
+//$results["photos"]=$x;
+//error_log(print_r($x->{"10150249280016421"},1));
 exit(json_encode($results));
 ?>
