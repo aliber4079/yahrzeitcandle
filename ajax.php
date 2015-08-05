@@ -120,8 +120,5 @@ foreach ($result as $key => $value) {
 	$value["photo"]=$photobj;
 	$results[]=$value;
 }
-//error_log("fb resp: " . print_r($x,1));
-//$results["photos"]=$x;
-//error_log(print_r($x->{"10150249280016421"},1));
 exit(json_encode($results));
 ?>
